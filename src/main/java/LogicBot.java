@@ -16,19 +16,8 @@ public class LogicBot {
                     exit();
                     break;
                 }
-
-
-
-
-
-
             }
-
         }
-
-
-
-
     }
     public static void help(){
         System.out.println(Messages.helpMessage);

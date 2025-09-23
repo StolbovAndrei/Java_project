@@ -7,6 +7,4 @@ public class ConsoleBot {
         LogicBot logicBot = new LogicBot();
         logicBot.start();
     }
-
-
 }
