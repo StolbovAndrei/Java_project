@@ -1,6 +1,9 @@
 import java.util.Scanner;
 
 public class LogicBot {
+
+    private final Echo echo = new Echo();
+
     public void start() {
         System.out.println(Messages.firstMessage);
         Scanner in = new Scanner(System.in);
@@ -16,7 +19,7 @@ public class LogicBot {
                     break;
                 }
                 case "/echo": {
-                    Echo.echo();
+                    echo.echo();
                     break;
                 }
             }
@@ -30,5 +33,9 @@ public class LogicBot {
     public static void exit() {
         System.out.println("До свидания!");
         System.exit(0);
+    }
+
+    public Echo getEcho() {
+        return echo;
     }
 }
