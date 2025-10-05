@@ -1,9 +1,12 @@
 import java.util.Scanner;
 
 public class Echo {
-    public static void echo(){
+
+    Scanner scanner = new Scanner(System.in);
+
+    public void echo(){
         System.out.println(Messages.echoMessage);
-        Scanner in = new Scanner(System.in);
+        Scanner in = scanner;
         while (true) {
             String newMessage = in.nextLine();
             switch (newMessage) {
