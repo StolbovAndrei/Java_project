@@ -5,7 +5,7 @@ public class Echo {
     Scanner scanner = new Scanner(System.in);
 
     public void echo(){
-        System.out.println(Messages.echoMessage);
+        System.out.println(Messages.ECHO_MESSAGE);
         Scanner in = scanner;
         while (true) {
             String newMessage = in.nextLine();
@@ -19,7 +19,7 @@ public class Echo {
                     break;
                 }
                 case "/back":{
-                    System.out.println(Messages.firstMessage);
+                    System.out.println(Messages.FIRST_MESSAGE);
                     return;
                 }
                 default :{
