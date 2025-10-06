@@ -5,7 +5,7 @@ public class LogicBot {
     private final Echo echo = new Echo();
 
     public void start() {
-        System.out.println(Messages.firstMessage);
+        System.out.println(Messages.FIRST_MESSAGE);
         Scanner in = new Scanner(System.in);
         while (true) {
             String message = in.nextLine();
@@ -27,7 +27,7 @@ public class LogicBot {
     }
 
     public static void help() {
-        System.out.println(Messages.helpMessage);
+        System.out.println(Messages.HELP_MESSAGE);
     }
 
     public static void exit() {
