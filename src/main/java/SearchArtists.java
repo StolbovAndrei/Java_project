@@ -8,15 +8,19 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 public class SearchArtists {
-    HttpClient client = HttpClient.newBuilder()
-            .version(HttpClient.Version.HTTP_2)
-            .connectTimeout(Duration.ofSeconds(12))
-            .build();
+    private final HttpClient client;
     public String GENIUS_API_URL = "https://api.genius.com/search";
-    ParserJsonKeys parserJsonKeys = new ParserJsonKeys();
-    Keys keys = parserJsonKeys.parserJsonKeysToPojo();
-    private final String GENIUS_API_TOKEN = keys.getGeniusApiToken();
+    private final String GENIUS_API_TOKEN;
 
+    public SearchArtists() throws IOException {
+        this.client = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_2)
+                .connectTimeout(Duration.ofSeconds(12))
+                .build();
+        ParserJsonKeys parserJsonKeys = new ParserJsonKeys();
+        Keys keys = parserJsonKeys.parserJsonKeysToPojo();
+        this.GENIUS_API_TOKEN = keys.getGeniusApiToken();
+    }
 
     public String searchArtists(String message) throws IOException, InterruptedException {
        String searchMessage = URLEncoder.encode(message, StandardCharsets.UTF_8);
@@ -36,8 +40,6 @@ public class SearchArtists {
            return searchMessage;
        }
        return response.body();
-    }
-    public SearchArtists() throws IOException {
     }
     }
 

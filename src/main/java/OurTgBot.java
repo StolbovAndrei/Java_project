@@ -58,7 +58,7 @@ public class OurTgBot extends TelegramLongPollingBot  {
                 }
             }
             else if (state == UserState.WAITING_FOR_ARTISTS){
-                SearchArtists searchArtists = null;
+                SearchArtists searchArtists;
                 try {
                     searchArtists = new SearchArtists();
                 } catch (IOException e) {
@@ -107,6 +107,7 @@ public class OurTgBot extends TelegramLongPollingBot  {
         }
     }
     public OurTgBot() throws IOException {
+
     }
     @Override
     public String getBotUsername() {
