@@ -1,0 +1,5 @@
+public enum UserState {
+    WAITING_FOR_ARTISTS,
+    WAITING_FOR_SONGS,
+    WAITING_FOR_ACTIONS
+}
