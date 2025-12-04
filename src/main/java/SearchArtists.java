@@ -10,7 +10,9 @@ import java.time.Duration;
 public class SearchArtists {
     private final HttpClient client;
     public String GENIUS_API_URL = "https://api.genius.com/search";
-    private final String GENIUS_API_TOKEN = "pMyqp0t07vzfUsnC-h0XsjYyV_rHi282GKczPrE6VjPLIzo2rn0XvKVTl8j-c1Bb";
+    ParserKeys parserKeys = new ParserKeys();
+    Keys keys = parserKeys.getKeys();
+    private final String GENIUS_API_TOKEN = keys.getGeniusApiToken();
 
     public SearchArtists() throws IOException {
         this.client = HttpClient.newBuilder()
