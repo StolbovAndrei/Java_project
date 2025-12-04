@@ -13,7 +13,5 @@ public class ConsoleBot {
             botsApi.registerBot(new OurTgBot());
         } catch (Exception e) {
             e.printStackTrace();
-
-
         }
     }}

@@ -10,16 +10,14 @@ import java.time.Duration;
 public class SearchArtists {
     private final HttpClient client;
     public String GENIUS_API_URL = "https://api.genius.com/search";
-    private final String GENIUS_API_TOKEN;
+    private final String GENIUS_API_TOKEN = "pMyqp0t07vzfUsnC-h0XsjYyV_rHi282GKczPrE6VjPLIzo2rn0XvKVTl8j-c1Bb";
 
     public SearchArtists() throws IOException {
         this.client = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_2)
                 .connectTimeout(Duration.ofSeconds(12))
                 .build();
-        ParserJsonKeys parserJsonKeys = new ParserJsonKeys();
-        Keys keys = parserJsonKeys.parserJsonKeysToPojo();
-        this.GENIUS_API_TOKEN = keys.getGeniusApiToken();
+
     }
 
     public String searchArtists(String message) throws IOException, InterruptedException {
