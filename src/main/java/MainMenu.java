@@ -28,7 +28,7 @@ public class MainMenu {
                 }
                 case "/search": {
                     UserData.changeUserState(chatId, UserState.WAITING_FOR_ARTISTS);
-                    outMessage = "Введите имя исполнителя и название трека для поиска: ";
+                    outMessage = Messages.SEARCH_MESSAGE;
                     break;
                 }
                 default: {
@@ -42,7 +42,7 @@ public class MainMenu {
                 UserData.changeUserState(chatId, UserState.WAITING_FOR_ACTIONS);
                 outMessage = Messages.BACK_MESSAGE;
             }
-            else{
+            else {
                 outMessage = startSearch(message) + "\nЕсли хотите выйти в меню, пропишите /back";
             }
         }
