@@ -12,29 +12,30 @@ public class Buttons {
     keyboardMarkup.setOneTimeKeyboard(false);
 
     UserState currentState = UserData.checkUserState(chatId);
-    keyboardMarkup.setKeyboard(createKeyboardRows(currentState));
+    boolean isNewUser = !UserData.checkUser(chatId);
+
+    keyboardMarkup.setKeyboard(createKeyboardRows(currentState, isNewUser));
 
     return keyboardMarkup;
   }
 
-  private static List<KeyboardRow> createKeyboardRows(UserState currentState) {
+  private static List<KeyboardRow> createKeyboardRows(UserState currentState, boolean isNewUser) {
     List<KeyboardRow> keyboard = new ArrayList<>();
 
-    if (currentState == null || currentState == UserState.WAITING_FOR_ACTIONS) {
-
-      KeyboardRow row1 = new KeyboardRow();
-      row1.add("/start");
-      row1.add("/help");
-
-      KeyboardRow row2 = new KeyboardRow();
-      row2.add("/search");
-      row2.add("/back");
-
-      keyboard.add(row1);
-      keyboard.add(row2);
+    if (isNewUser) {
+      KeyboardRow row = new KeyboardRow();
+      row.add("/start");
+      keyboard.add(row);
     }
-    else if (currentState == UserState.WAITING_FOR_ARTISTS) {
 
+    else if (currentState == null || currentState == UserState.WAITING_FOR_ACTIONS) {
+      KeyboardRow row = new KeyboardRow();
+      row.add("/help");
+      row.add("/search");
+      keyboard.add(row);
+    }
+
+    else if (currentState == UserState.WAITING_FOR_ARTISTS) {
       KeyboardRow row = new KeyboardRow();
       row.add("/back");
       keyboard.add(row);

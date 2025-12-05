@@ -20,6 +20,12 @@ public class MainMenu {
             return Messages.FIRST_MESSAGE;
         }
 
+      if (message.equalsIgnoreCase("/back") &&
+          (UserData.checkUserState(chatId) == null ||
+              UserData.checkUserState(chatId) == UserState.WAITING_FOR_ACTIONS)) {
+        return Messages.BACK_MESSAGE;
+      }
+
         if(UserData.checkUserState(chatId) == UserState.WAITING_FOR_ACTIONS) {
             switch (message){
                 case "/help": {
