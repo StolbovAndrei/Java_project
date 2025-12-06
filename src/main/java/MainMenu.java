@@ -6,51 +6,40 @@ import java.util.Map;
 
 
 public class MainMenu {
-
-
     public String mainMenu(Update up) {
         String message = up.getMessage().getText();
         long chatId = up.getMessage().getChatId();
         String outMessage = "";
 
-        if(message.equalsIgnoreCase("/start")){
-            if(!UserData.checkUser(chatId)){
-                UserData.addUser(chatId);
-            }
-            return Messages.FIRST_MESSAGE;
-        }
-
-      if (message.equalsIgnoreCase("/back") &&
-          (UserData.checkUserState(chatId) == null ||
-              UserData.checkUserState(chatId) == UserState.WAITING_FOR_ACTIONS)) {
-        return Messages.BACK_MESSAGE;
-      }
-
-        if(UserData.checkUserState(chatId) == UserState.WAITING_FOR_ACTIONS) {
-            switch (message){
-                case "/help": {
-                    outMessage = Messages.HELP_MESSAGE;
-                    break;
+        if (UserData.checkUser(chatId)) {
+            if (UserData.checkUserState(chatId) == UserState.WAITING_FOR_ACTIONS) {
+                switch (message) {
+                    case "/help", "Помощь": {
+                        outMessage = Messages.HELP_MESSAGE;
+                        break;
+                    }
+                    case "/search", "Поиск": {
+                        UserData.changeUserState(chatId, UserState.WAITING_FOR_ARTISTS);
+                        outMessage = Messages.SEARCH_MESSAGE;
+                        break;
+                    }
+                    default: {
+                        outMessage = Messages.DEFAULT_MESSAGE;
+                        break;
+                    }
                 }
-                case "/search": {
-                    UserData.changeUserState(chatId, UserState.WAITING_FOR_ARTISTS);
-                    outMessage = Messages.SEARCH_MESSAGE;
-                    break;
-                }
-                default: {
-                    outMessage = Messages.DEFAULT_MESSAGE;
-                    break;
+            } else if (UserData.checkUserState(chatId) == UserState.WAITING_FOR_ARTISTS) {
+                if (message.equalsIgnoreCase("/back") || message.equalsIgnoreCase("Назад")) {
+                    UserData.changeUserState(chatId, UserState.WAITING_FOR_ACTIONS);
+                    outMessage = Messages.BACK_MESSAGE;
+                } else {
+                    outMessage = startSearch(message) + "\nЕсли хотите выйти в меню, пропишите /back";
                 }
             }
         }
-        else if(UserData.checkUserState(chatId) == UserState.WAITING_FOR_ARTISTS) {
-            if(message.equalsIgnoreCase("/back")){
-                UserData.changeUserState(chatId, UserState.WAITING_FOR_ACTIONS);
-                outMessage = Messages.BACK_MESSAGE;
-            }
-            else {
-                outMessage = startSearch(message) + "\nЕсли хотите выйти в меню, пропишите /back";
-            }
+        else{
+            UserData.addUser(chatId);
+            outMessage = Messages.FIRST_MESSAGE;
         }
         return outMessage;
     }

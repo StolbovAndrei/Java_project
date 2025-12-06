@@ -9,7 +9,6 @@ import java.util.Map;
 
 
 public class OurTgBot extends TelegramLongPollingBot  {
-  private final Map<Long, UserState> userStates = new HashMap<>();
   ParserKeys parserKeys = new ParserKeys();
   Keys keys = parserKeys.getKeys();
 
@@ -19,7 +18,6 @@ public class OurTgBot extends TelegramLongPollingBot  {
   @Override
   public void onUpdateReceived (Update update){
     if(update.hasMessage() && update.getMessage().hasText()) {
-      String message = update.getMessage().getText();
       long chatId = update.getMessage().getChatId();
 
       MainMenu mainMenu = new MainMenu();

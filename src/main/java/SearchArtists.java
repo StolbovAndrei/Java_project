@@ -19,13 +19,17 @@ public class SearchArtists {
                 .version(HttpClient.Version.HTTP_2)
                 .connectTimeout(Duration.ofSeconds(12))
                 .build();
-
+    }
+    public SearchArtists(String baseUrl) throws IOException {
+        this.GENIUS_API_URL = baseUrl;
+        this.client = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_2)
+                .connectTimeout(Duration.ofSeconds(12))
+                .build();
     }
 
     public String searchArtists(String message) throws IOException, InterruptedException {
        String searchMessage = URLEncoder.encode(message, StandardCharsets.UTF_8);
-
-
 
        HttpRequest request = HttpRequest.newBuilder()
                .uri(URI.create(GENIUS_API_URL + "?q=" + searchMessage))
