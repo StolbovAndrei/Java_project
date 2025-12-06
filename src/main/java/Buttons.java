@@ -6,41 +6,41 @@ import java.util.List;
 
 
 public class Buttons {
-  public static ReplyKeyboardMarkup getKeyboardForUser(long chatId) {
-    ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-    keyboardMarkup.setResizeKeyboard(true);
-    keyboardMarkup.setOneTimeKeyboard(false);
+    public static ReplyKeyboardMarkup getKeyboardForUser(long chatId) {
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        keyboardMarkup.setResizeKeyboard(true);
+        keyboardMarkup.setOneTimeKeyboard(false);
 
-    UserState currentState = UserData.checkUserState(chatId);
-    boolean isNewUser = !UserData.checkUser(chatId);
+        UserState currentState = UserData.checkUserState(chatId);
+        boolean isNewUser = !UserData.checkUser(chatId);
 
-    keyboardMarkup.setKeyboard(createKeyboardRows(currentState, isNewUser));
+        keyboardMarkup.setKeyboard(createKeyboardRows(currentState, isNewUser));
 
-    return keyboardMarkup;
-  }
-
-  private static List<KeyboardRow> createKeyboardRows(UserState currentState, boolean isNewUser) {
-    List<KeyboardRow> keyboard = new ArrayList<>();
-
-    if (isNewUser) {
-      KeyboardRow row = new KeyboardRow();
-      row.add("/start");
-      keyboard.add(row);
+        return keyboardMarkup;
     }
 
-    else if (currentState == null || currentState == UserState.WAITING_FOR_ACTIONS) {
-      KeyboardRow row = new KeyboardRow();
-      row.add("/help");
-      row.add("/search");
-      keyboard.add(row);
-    }
+    private static List<KeyboardRow> createKeyboardRows(UserState currentState, boolean isNewUser) {
+        List<KeyboardRow> keyboard = new ArrayList<>();
 
-    else if (currentState == UserState.WAITING_FOR_ARTISTS) {
-      KeyboardRow row = new KeyboardRow();
-      row.add("/back");
-      keyboard.add(row);
-    }
+        if (isNewUser) {
+            KeyboardRow row = new KeyboardRow();
+            row.add("/start");
+            keyboard.add(row);
+        }
 
-    return keyboard;
-  }
+        else if (currentState == null || currentState == UserState.WAITING_FOR_ACTIONS) {
+            KeyboardRow row = new KeyboardRow();
+            row.add("Помощь");
+            row.add("Поиск");
+            keyboard.add(row);
+        }
+
+        else if (currentState == UserState.WAITING_FOR_ARTISTS) {
+            KeyboardRow row = new KeyboardRow();
+            row.add("Назад");
+            keyboard.add(row);
+        }
+
+        return keyboard;
+    }
 }
