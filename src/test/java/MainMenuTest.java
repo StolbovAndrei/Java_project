@@ -37,6 +37,7 @@ public class MainMenuTest {
         when(message.getChatId()).thenReturn(1231L);
 
         try (MockedStatic<UserData> userDataMockedStatic = Mockito.mockStatic(UserData.class)) {
+            userDataMockedStatic.when(() -> UserData.checkUser(1231L)).thenReturn(true);
             userDataMockedStatic.when(() -> UserData.checkUserState(1231L)).thenReturn(UserState.WAITING_FOR_ACTIONS);
 
             String result = mainMenu.mainMenu(update);
@@ -52,6 +53,7 @@ public class MainMenuTest {
         when(message.getChatId()).thenReturn(1231L);
 
         try (MockedStatic<UserData> userDataMockedStatic = Mockito.mockStatic(UserData.class)) {
+            userDataMockedStatic.when(() -> UserData.checkUser(1231L)).thenReturn(true);
             userDataMockedStatic.when(() -> UserData.checkUserState(1231L)).thenReturn(UserState.WAITING_FOR_ACTIONS);
 
             String result = mainMenu.mainMenu(update);
@@ -66,6 +68,7 @@ public class MainMenuTest {
         when(message.getText()).thenReturn("Test-Song");
         when(message.getChatId()).thenReturn(1231L);
         try (MockedStatic<UserData> userDataMockedStatic = Mockito.mockStatic(UserData.class)) {
+            userDataMockedStatic.when(() -> UserData.checkUser(1231L)).thenReturn(true);
             userDataMockedStatic.when(() ->  UserData.checkUserState(1231L)).thenReturn(UserState.WAITING_FOR_ARTISTS);
 
             String result = mainMenu.mainMenu(update);

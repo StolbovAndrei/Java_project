@@ -4,8 +4,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class OurTgBot extends TelegramLongPollingBot  {
