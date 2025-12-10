@@ -1,46 +1,50 @@
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
-
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class Buttons {
-    public static ReplyKeyboardMarkup getKeyboardForUser(long chatId) {
-        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-        keyboardMarkup.setResizeKeyboard(true);
-        keyboardMarkup.setOneTimeKeyboard(false);
 
-        UserState currentState = UserData.checkUserState(chatId);
-        boolean isNewUser = !UserData.checkUser(chatId);
+    public InlineKeyboardMarkup getKeyboardForUser(long chatId, UserData userData) {
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
 
-        keyboardMarkup.setKeyboard(createKeyboardRows(currentState, isNewUser));
+        UserState currentState = userData.checkUserState(chatId);
+
+        keyboardMarkup.setKeyboard(createKeyboardRows(currentState));
 
         return keyboardMarkup;
     }
 
-    private static List<KeyboardRow> createKeyboardRows(UserState currentState, boolean isNewUser) {
-        List<KeyboardRow> keyboard = new ArrayList<>();
+    private List<List<InlineKeyboardButton>> createKeyboardRows(UserState currentState) {
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        List<InlineKeyboardButton> buttons = new ArrayList<>();
+        InlineKeyboardButton buttonHelp = new InlineKeyboardButton();
+        InlineKeyboardButton buttonSearch = new InlineKeyboardButton();
+        InlineKeyboardButton buttonBack = new InlineKeyboardButton();
 
-        if (isNewUser) {
-            KeyboardRow row = new KeyboardRow();
-            row.add("/start");
-            keyboard.add(row);
+        if (currentState == null || currentState == UserState.WAITING_FOR_ACTIONS) {
+
+            buttonHelp.setText("Помощь");
+            buttonHelp.setCallbackData("/help");
+
+            buttonSearch.setText("Поиск");
+            buttonSearch.setCallbackData("/search");
+            System.out.println(buttonSearch.getCallbackData());
+
+            buttons.add(buttonHelp);
+            buttons.add(buttonSearch);
         }
-
-        else if (currentState == null || currentState == UserState.WAITING_FOR_ACTIONS) {
-            KeyboardRow row = new KeyboardRow();
-            row.add("Помощь");
-            row.add("Поиск");
-            keyboard.add(row);
-        }
-
         else if (currentState == UserState.WAITING_FOR_ARTISTS) {
-            KeyboardRow row = new KeyboardRow();
-            row.add("Назад");
-            keyboard.add(row);
-        }
+            buttonBack.setText("Назад");
+            buttonBack.setCallbackData("/back");
 
+
+            buttons.add(buttonBack);
+        }
+        keyboard.add(buttons);
         return keyboard;
     }
 }

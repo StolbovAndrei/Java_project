@@ -1,52 +1,95 @@
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
 import java.io.IOException;
 
+public class OurTgBot extends TelegramLongPollingBot {
+    private final UserData userData;
+    private final ParserKeys parserKeys = new ParserKeys();
+    private final Keys keys = parserKeys.getKeys();
+    private final MainMenu mainMenu = new MainMenu();
+    private final Buttons buttons = new Buttons();
+    private final String botUsername = keys.getBotUsername();
+    private final String botToken = keys.getBotToken();
 
-public class OurTgBot extends TelegramLongPollingBot  {
-  ParserKeys parserKeys = new ParserKeys();
-  Keys keys = parserKeys.getKeys();
-
-  private final String BOT_USERNAME = keys.getBotUsername();
-  private final String BOT_TOKEN = keys.getBotToken();
-
-  @Override
-  public void onUpdateReceived (Update update){
-    if(update.hasMessage() && update.getMessage().hasText()) {
-      long chatId = update.getMessage().getChatId();
-
-      MainMenu mainMenu = new MainMenu();
-      String result = mainMenu.mainMenu(update);
-      sendTextWithKeyboard(chatId, result);
+    public OurTgBot(UserData userData) throws IOException {
+        this.userData = userData;
     }
-  }
 
-  private void sendTextWithKeyboard(long chatId, String text) {
-    SendMessage msg = new SendMessage();
-    msg.setChatId(String.valueOf(chatId));
-    msg.setText(text);
-    msg.setReplyMarkup(Buttons.getKeyboardForUser(chatId));
-
-    try {
-      execute(msg);
-    } catch (TelegramApiException e) {
-      e.printStackTrace();
+    @Override
+    public String getBotUsername() {
+        return botUsername;
     }
-  }
 
-  public OurTgBot() throws IOException {
-  }
+    @Override
+    public String getBotToken() {
+        return botToken;
+    }
 
-  @Override
-  public String getBotUsername() {
-    return BOT_USERNAME;
-  }
+    @Override
+    public void onUpdateReceived(Update update) {
+        DeleteMessage deleteMessage = new DeleteMessage();
+        if (update.hasMessage() && update.getMessage().hasText()) {
+            handleMessage(update);
 
-  @Override
-  public String getBotToken(){
-    return BOT_TOKEN;
-  }
+        } else if (update.hasCallbackQuery()) {
+            handleCallbackQuery(update);
+            long chatId = update.getCallbackQuery().getMessage().getChatId();
+            int messageId = update.getCallbackQuery().getMessage().getMessageId();
+            String text = update.getCallbackQuery().getData();
+            if(!text.startsWith("/back")) {
+                deleteMessage.setMessageId(messageId);
+                deleteMessage.setChatId(chatId);
+                try {
+                    execute(deleteMessage);
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+    }
+
+    private void handleMessage(Update update) {
+        long chatId = update.getMessage().getChatId();
+        SendMessage result = mainMenu.mainMenu(update, userData);
+        result.setReplyMarkup(buttons.getKeyboardForUser(chatId, userData));
+        try {
+            execute(result);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleCallbackQuery(Update update) {
+        CallbackQuery callbackQuery = update.getCallbackQuery();
+        String callbackData = callbackQuery.getData();
+        long chatId = callbackQuery.getMessage().getChatId();
+
+        Update artificialUpdate = new Update();
+        Message message = new Message();
+        message.setChat(new Chat(chatId, "private"));
+        message.setText(callbackData);
+        artificialUpdate.setMessage(message);
+
+        SendMessage result = mainMenu.mainMenu(artificialUpdate, userData);
+        result.setReplyMarkup(buttons.getKeyboardForUser(chatId, userData));
+
+        try {
+            AnswerCallbackQuery answer = new AnswerCallbackQuery();
+            answer.setCallbackQueryId(callbackQuery.getId());
+            execute(answer);
+            execute(result);
+
+
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
 }
