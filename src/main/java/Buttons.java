@@ -32,7 +32,6 @@ public class Buttons {
 
             buttonSearch.setText("Поиск");
             buttonSearch.setCallbackData("/search");
-            System.out.println(buttonSearch.getCallbackData());
 
             buttons.add(buttonHelp);
             buttons.add(buttonSearch);

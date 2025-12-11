@@ -1,5 +1,5 @@
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.io.IOException;
@@ -12,7 +12,9 @@ public class MainMenu {
         String message = update.getMessage().getText();
         long chatId = update.getMessage().getChatId();
         SendMessage outMessage = new SendMessage();
+
         outMessage.setChatId(chatId);
+        outMessage.setParseMode(ParseMode.HTML);
 
         if (userData.checkUser(chatId)) {
             if (userData.checkUserState(chatId) == UserState.WAITING_FOR_ACTIONS) {
@@ -49,18 +51,17 @@ public class MainMenu {
 
 
     public String startSearch(String searchText) {
-        SearchArtists searchArtists;
+        GeniusClient geniusClient;
         try {
-            searchArtists = new SearchArtists();
+            geniusClient = new GeniusClient();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        ParserJson parserJson = new ParserJson();
+        FormatClass formatClass = new FormatClass();
         String resultSearchOfTitles;
         try {
-            String responseSearch = searchArtists.searchArtists(searchText);
-            Map<String, List<String>> songs = parserJson.parserJson(responseSearch);
-            resultSearchOfTitles = parserJson.resultOfSearch(songs);
+            Map<String, List<String>> songs = geniusClient.searchArtists(searchText);
+            resultSearchOfTitles = formatClass.formatResult(songs);
 
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
