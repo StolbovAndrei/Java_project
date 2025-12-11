@@ -8,6 +8,21 @@ import java.util.Map;
 
 
 public class MainMenu {
+    private final GeniusClient geniusClient;
+    private final FormatClass formatClass;
+    public MainMenu() {
+        try {
+            this.geniusClient = new GeniusClient();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        this.formatClass = new FormatClass();
+    }
+    public MainMenu(GeniusClient geniusClient, FormatClass formatClass) {
+        this.geniusClient = geniusClient;
+        this.formatClass = formatClass;
+    }
+
     public SendMessage mainMenu(Update update, UserData userData) {
         String message = update.getMessage().getText();
         long chatId = update.getMessage().getChatId();
@@ -51,22 +66,12 @@ public class MainMenu {
 
 
     public String startSearch(String searchText) {
-        GeniusClient geniusClient;
-        try {
-            geniusClient = new GeniusClient();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        FormatClass formatClass = new FormatClass();
-        String resultSearchOfTitles;
         try {
             Map<String, List<String>> songs = geniusClient.searchArtists(searchText);
-            resultSearchOfTitles = formatClass.formatResult(songs);
-
+            return formatClass.formatResult(songs);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-        return resultSearchOfTitles;
     }
 
 }

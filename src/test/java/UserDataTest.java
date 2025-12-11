@@ -1,35 +1,37 @@
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserDataTest {
+    UserData userData = new UserData();
     @Test
     public void testCheckUser() {
-        assertFalse(UserData.checkUser(3132L));
+        assertFalse(userData.checkUser(3132L));
     }
 
     @Test
     public void testAddUserAndCheck() {
-        UserData.addUser(1312L);
-        assertTrue(UserData.checkUser(1312L));
+        userData.addUser(1312L);
+        assertTrue(userData.checkUser(1312L));
     }
 
     @Test
     public void testCheckUserState() {
-        UserData.addUser(1312L);
-        assertEquals(UserState.WAITING_FOR_ACTIONS, UserData.checkUserState(1312L));
+        userData.addUser(1312L);
+        assertEquals(UserState.WAITING_FOR_ACTIONS, userData.checkUserState(1312L));
     }
 
     @Test
     public void testCheckUserStateOnNull(){
-        assertNull(UserData.checkUserState(112L));
+        assertNull(userData.checkUserState(112L));
     }
 
     @Test
     public void testChangeUserState() {
-        UserData.addUser(1312L);
-        UserData.changeUserState(1312L, UserState.WAITING_FOR_ARTISTS);
-        assertEquals(UserState.WAITING_FOR_ARTISTS, UserData.checkUserState(1312L));
+        userData.addUser(1312L);
+        userData.changeUserState(1312L, UserState.WAITING_FOR_ARTISTS);
+        assertEquals(UserState.WAITING_FOR_ARTISTS, userData.checkUserState(1312L));
     }
 
 }
