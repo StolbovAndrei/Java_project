@@ -2,7 +2,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UserData {
-    public Map<Long, User> users = new HashMap<>();
+    private final Map<Long, User> users = new HashMap<>();
 
     public boolean checkUser(long userId) {
         return users.containsKey(userId);
