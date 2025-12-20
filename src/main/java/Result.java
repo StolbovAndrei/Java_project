@@ -4,6 +4,17 @@ public class Result {
     @JsonProperty("artist_names")
     private String artistNames;
 
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    @JsonProperty("url")
+    private String url;
+
     public String getTitle() {
         return title;
     }
