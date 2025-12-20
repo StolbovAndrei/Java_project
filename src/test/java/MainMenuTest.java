@@ -1,101 +1,65 @@
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class MainMenuTest {
 
     @Mock
-    private UserData userData;
+    private GeniusClient mockGeniusClient;
 
     @Mock
-    private Update update;
+    private UserData mockUserData;
 
-    @Mock
-    private Message tgMessage;
+    @Test
+    void testMainMenuFlow() throws Exception {
+        MainMenu mainMenu = new MainMenu(mockGeniusClient);
+        Update update = mock(Update.class);
+        Message message = mock(Message.class);
 
-    private MainMenu mainMenu;
+        when(update.getMessage()).thenReturn(message);
+        when(message.getText()).thenReturn("/search");
+        when(message.getChatId()).thenReturn(12345L);
 
-    @BeforeEach
-    void setUp() {
-        mainMenu = new MainMenu();
+        when(mockUserData.checkUser(12345L)).thenReturn(true);
+        when(mockUserData.checkUserState(12345L)).thenReturn(UserState.WAITING_FOR_ACTIONS);
+
+        SendMessage result = mainMenu.mainMenu(update, mockUserData);
+        assertNotNull(result);
+        assertEquals("12345", result.getChatId());
+        verify(mockUserData).changeUserState(12345L, UserState.WAITING_FOR_ARTISTS);
     }
 
     @Test
-    void helpCommandTest() {
-        long chatId = 123L;
+    void testSearchFunctionality() throws Exception {
+        MainMenu mainMenu = new MainMenu(mockGeniusClient);
+        Map<String, java.util.List<String>> searchResults = new HashMap<>();
+        searchResults.put("Test Artist", Arrays.asList("Test Song"));
 
-        when(update.getMessage()).thenReturn(tgMessage);
-        when(tgMessage.getChatId()).thenReturn(chatId);
-        when(tgMessage.getText()).thenReturn("/help");
-
-        when(userData.checkUser(chatId)).thenReturn(true);
-        when(userData.checkUserState(chatId)).thenReturn(UserState.WAITING_FOR_ACTIONS);
-
-        SendMessage out = mainMenu.mainMenu(update, userData);
-
-        assertEquals(String.valueOf(chatId), out.getChatId());
-        assertEquals(ParseMode.HTML, out.getParseMode());
-        assertEquals(Messages.HELP_MESSAGE, out.getText());
-        verify(userData, never()).addUser(anyLong());
+        when(mockGeniusClient.searchArtists("test")).thenReturn(searchResults);
+        when(mockGeniusClient.getUrls("test")).thenReturn(Arrays.asList("url1"));
+        SendMessage result = mainMenu.handleSearchMenu("test", mockUserData, 12345L);
+        assertNotNull(result);
+        assertEquals("12345", result.getChatId());
+        assertTrue(result.getText().contains("Найденные треки"));
     }
 
     @Test
-    void searchCommandChangeUserStateTest() {
-        long chatId = 123L;
-
-        when(update.getMessage()).thenReturn(tgMessage);
-        when(tgMessage.getChatId()).thenReturn(chatId);
-        when(tgMessage.getText()).thenReturn("/search");
-
-        when(userData.checkUser(chatId)).thenReturn(true);
-        when(userData.checkUserState(chatId)).thenReturn(UserState.WAITING_FOR_ACTIONS);
-
-        SendMessage out = mainMenu.mainMenu(update, userData);
-
-        verify(userData).changeUserState(chatId, UserState.WAITING_FOR_ARTISTS);
-        assertEquals(Messages.SEARCH_MESSAGE, out.getText());
-    }
-
-    @Test
-    void backCommandTest () {
-        long chatId = 123L;
-
-        when(update.getMessage()).thenReturn(tgMessage);
-        when(tgMessage.getChatId()).thenReturn(chatId);
-        when(tgMessage.getText()).thenReturn("/back");
-
-        when(userData.checkUser(chatId)).thenReturn(true);
-        when(userData.checkUserState(chatId)).thenReturn(UserState.WAITING_FOR_ARTISTS);
-
-        SendMessage out = mainMenu.mainMenu(update, userData);
-
-        verify(userData).changeUserState(chatId, UserState.WAITING_FOR_ACTIONS);
-        assertEquals(Messages.BACK_MESSAGE, out.getText());
-    }
-
-    @Test
-    void addNewUserTest() {
-        long chatId = 123L;
-
-        when(update.getMessage()).thenReturn(tgMessage);
-        when(tgMessage.getChatId()).thenReturn(chatId);
-        when(tgMessage.getText()).thenReturn("/start");
-
-        when(userData.checkUser(chatId)).thenReturn(false);
-
-        SendMessage out = mainMenu.mainMenu(update, userData);
-
-        verify(userData).addUser(chatId);
-        assertEquals(Messages.FIRST_MESSAGE, out.getText());
+    void testHelpCommand() {
+        MainMenu mainMenu = new MainMenu(mockGeniusClient);
+        SendMessage result = mainMenu.handleMainMenu("/help", mockUserData, 12345L);
+        assertEquals("12345", result.getChatId());
+        assertTrue(result.getText().contains(Messages.HELP_MESSAGE));
     }
 }

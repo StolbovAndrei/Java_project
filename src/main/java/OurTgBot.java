@@ -1,7 +1,6 @@
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -14,7 +13,6 @@ public class OurTgBot extends TelegramLongPollingBot {
     private final ParserKeys parserKeys = new ParserKeys();
     private final Keys keys = parserKeys.getKeys();
     private final MainMenu mainMenu = new MainMenu();
-    private final Buttons buttons = new Buttons();
     private final String botUsername = keys.getBotUsername();
     private final String botToken = keys.getBotToken();
 
@@ -34,36 +32,30 @@ public class OurTgBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        DeleteMessage deleteMessage = new DeleteMessage();
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            handleMessage(update);
-
-        } else if (update.hasCallbackQuery()) {
-            handleCallbackQuery(update);
-            long chatId = update.getCallbackQuery().getMessage().getChatId();
-            int messageId = update.getCallbackQuery().getMessage().getMessageId();
-            String text = update.getCallbackQuery().getData();
-            if(!text.startsWith("/back")) {
-                deleteMessage.setMessageId(messageId);
-                deleteMessage.setChatId(chatId);
-                try {
-                    execute(deleteMessage);
-                } catch (TelegramApiException e) {
-                    throw new RuntimeException(e);
-                }
+        try {
+            if (update.hasMessage() && update.getMessage().hasText()) {
+                handleMessage(update);
+            } else if (update.hasCallbackQuery()) {
+                handleCallbackQuery(update);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
     }
 
     private void handleMessage(Update update) {
-        long chatId = update.getMessage().getChatId();
-        SendMessage result = mainMenu.mainMenu(update, userData);
-        result.setReplyMarkup(buttons.getKeyboardForUser(chatId, userData));
+
         try {
+            SendMessage result = mainMenu.mainMenu(update, userData);
             execute(result);
         } catch (TelegramApiException e) {
             e.printStackTrace();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -72,24 +64,65 @@ public class OurTgBot extends TelegramLongPollingBot {
         String callbackData = callbackQuery.getData();
         long chatId = callbackQuery.getMessage().getChatId();
 
-        Update artificialUpdate = new Update();
-        Message message = new Message();
-        message.setChat(new Chat(chatId, "private"));
-        message.setText(callbackData);
-        artificialUpdate.setMessage(message);
-
-        SendMessage result = mainMenu.mainMenu(artificialUpdate, userData);
-        result.setReplyMarkup(buttons.getKeyboardForUser(chatId, userData));
+        SendMessage response = new SendMessage();
+        response.setChatId(String.valueOf(chatId));
+        response.setParseMode("HTML");
 
         try {
             AnswerCallbackQuery answer = new AnswerCallbackQuery();
             answer.setCallbackQueryId(callbackQuery.getId());
             execute(answer);
-            execute(result);
+            if (callbackData.equals("/help")) {
+                Update artificialUpdate = createArtificialUpdate(chatId, "/help");
+                response = mainMenu.mainMenu(artificialUpdate, userData);
+
+            } else if (callbackData.equals("/search")) {
+                userData.changeUserState(chatId, UserState.WAITING_FOR_ARTISTS);
+                response.setText(Messages.SEARCH_MESSAGE);
+                Buttons buttons = new Buttons();
+                response.setReplyMarkup(buttons.getKeyboardForUser(chatId, userData));
+
+            } else if (callbackData.equals("/back")) {
+                userData.changeUserState(chatId, UserState.WAITING_FOR_ACTIONS);
+                response.setText(Messages.BACK_MESSAGE);
+                Buttons buttons = new Buttons();
+                response.setReplyMarkup(buttons.getKeyboardForUser(chatId, userData));
 
 
-        } catch (TelegramApiException e) {
+            } else if (callbackData.startsWith("track_")){
+                response = mainMenu.handleTrackSelection(callbackData, userData, chatId);
+
+            } else if (callbackData.equals("/lyrics")){
+                userData.changeUserState(chatId, UserState.WAITING_FOR_TEXT);
+                response = mainMenu.handleSendText(userData, chatId);
+            } else if (callbackData.equals("/link")){
+                userData.changeUserState(chatId, UserState.WAITING_FOR_LINK);
+                response = mainMenu.handleSendTrack(userData, chatId);
+            }
+            else {
+                Update artificialUpdate = createArtificialUpdate(chatId, callbackData);
+                response = mainMenu.mainMenu(artificialUpdate, userData);
+            }
+
+            execute(response);
+
+        } catch (Exception e) {
             e.printStackTrace();
+            try {
+                response.setText("Произошла ошибка. Попробуйте еще раз.");
+                execute(response);
+            } catch (TelegramApiException ex) {
+                ex.printStackTrace();
+            }
         }
+    }
+
+    private Update createArtificialUpdate(long chatId, String text) {
+        Update artificialUpdate = new Update();
+        Message message = new Message();
+        message.setChat(new Chat(chatId, "private"));
+        message.setText(text);
+        artificialUpdate.setMessage(message);
+        return artificialUpdate;
     }
 }
